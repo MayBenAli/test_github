@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+      <h1>Mots Croisés Interactifs</h1>
+
+      <div class="score-container">
+        Score: <span id="score">0</span> / <span id="total-words">4</span>
+      </div>
+
+      <div class="game-area">
+        <div class="crossword-container">
+            <table id="crossword-table">
+            <!-- La grille sera générée par JavaScript -->
+            </table>
+        </div>
+
+        <div class="direction-indicator">
+          Direction actuelle: <span id="current-direction">HORIZONTAL</span>
+          <br />
+          <small>Appuyez sur TAB pour changer de direction</small>
+        </div>
+
+        <div class="clues-container">
+          <div class="clues-section">
+            <h2>Mots Horizontaux</h2>
+            <div class="clue-buttons" id="horizontal-clues">
+              <!-- Les indices horizontaux seront générés par JavaScript -->
+            </div>
+          </div>
+
+          <div class="clues-section">
+            <h2>Mots Verticaux</h2>
+            <div class="clue-buttons" id="vertical-clues">
+                <!-- Les indices verticaux seront générés par JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="submit-btn">Vérifier les réponses</button>
+        <button id="reset-btn">Réinitialiser</button>
+      </div>
+
+      <div class="message" id="message"></div>
+    </div>
+    <script type="module" src="index.js"></script>   
+</body>
+</html>

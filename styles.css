@@ -1,0 +1,89 @@
+.c1 {
+        font-size: 25px;
+        border: 1px solid black;
+        border-collapse: collapse;
+        text-align: center;
+        width: 25px;
+        height: 25px;
+        background-color: white;
+        position: relative;
+        transition: background-color 0.3s;
+      }
+      .c2 {
+        width: 25px;
+        height: 25px;
+        border: 1px solid transparent;
+        border-collapse: collapse;
+        font-size: 25px;
+        text-align: center;
+      }
+      table {
+        margin: 0 auto;
+        cursor: context-menu;
+      }
+
+      /* Styles ajoutés pour l'interactivité */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 30px;
+      }
+
+      .score-container {
+        text-align: center;
+        margin: 20px 0;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #3498db;
+      }
+
+      .game-area {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+      }
+
+      .crossword-container {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .clues-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        width: 100%;
+        max-width: 800px;
+      }
+
+      .clues-section {
+        flex: 1;
+        min-width: 300px;
+      }
+
+      .clues-section h2 {
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 5px;
+        text-align: center;
+      }
