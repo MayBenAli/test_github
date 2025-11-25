@@ -110,3 +110,51 @@ function initializeGrid() {
         table.appendChild(row);
     }
 }
+// Gérer la saisie des lettres
+function handleInput(e) {
+    const input = e.target;
+    const row = parseInt(input.dataset.row);
+    const col = parseInt(input.dataset.col);
+
+    // Mettre en majuscule
+    input.value = input.value.toUpperCase();
+
+    // Si une lettre est saisie, passer à la case suivante selon la direction
+    if (input.value && input.value.match(/[A-Z]/)) {
+        let nextRow = row;
+        let nextCol = col;
+
+        if (currentDirection === "horizontal") {
+        nextCol = col + 1; //on avance horizontalement
+        } else {// on avance le curseur verticalement
+        nextRow = row + 1;
+        }
+
+        // Vérifier les limites de la grille
+        if (nextRow < 9 && nextCol < 10) {
+        const nextInput = userInputs[`${nextRow}-${nextCol}`];
+            if (nextInput) {
+                nextInput.focus();
+            }
+        }
+    }
+}
+// Gérer les touches du clavier
+function handleKeyDown(e) {
+    const input = e.target;
+    const row = parseInt(input.dataset.row);
+    const col = parseInt(input.dataset.col);
+
+    if (e.key === "Backspace" && !input.value) {
+        // Si backspace est pressé sur une case vide, revenir à la case précédente
+        let prevRow = row;
+        let prevCol = col;
+
+        if (currentDirection === "horizontal") {
+            prevCol = col - 1;
+            } else {
+            prevRow = row - 1;
+            
+        }
+    }
+}
