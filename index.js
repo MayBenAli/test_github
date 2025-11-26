@@ -152,9 +152,55 @@ function handleKeyDown(e) {
 
         if (currentDirection === "horizontal") {
             prevCol = col - 1;
-            } else {
+        } else {
             prevRow = row - 1;
             
         }
+    
+        // Vérifier les limites de la grille
+        if (prevRow >= 0 && prevCol >= 0) {
+            const prevInput = userInputs[`${prevRow}-${prevCol}`];
+            if (prevInput) {
+                prevInput.focus(); //place le curseur dans un champ ou active l'element pour recevoir des interactions clavier.
+            }
+        }
+    } else if (e.key === "Tab") {
+        e.preventDefault();
+        // Changer de direction avec Tab
+        currentDirection =
+            currentDirection === "horizontal" ? "vertical" : "horizontal";
+        updateDirectionIndicator();// sera definie apres
+        updateActiveClue();// sera definie apres
+    }
+}
+// Gérer le focus sur une cellule
+function handleFocus(e) {
+    const input = e.target;
+    const row = parseInt(input.dataset.row);
+    const col = parseInt(input.dataset.col);
+
+    // Trouver le mot actif basé sur la position
+    const activeWord = crosswordData.words.find((word) => {
+        if (word.direction === "horizontal") {
+            return (
+              word.row === row &&
+              col >= word.col &&
+              col < word.col + word.word.length
+            );
+        } else {
+            return (
+              word.col === col &&
+              row >= word.row &&
+              row < word.row + word.word.length
+            );
+          }
+    });
+
+    if (activeWord) {
+        activeWordId = activeWord.id;
+        currentDirection = activeWord.direction;
+        updateDirectionIndicator();
+        updateActiveClue();
+        highlightWord(activeWord.id);
     }
 }
