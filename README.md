@@ -54,3 +54,6 @@ Saisie : Tapez les lettres (conversion automatique en majuscules)
 Validation : Cliquez sur "Vérifier" pour valider vos réponses
 
 Réinitialisation : Utilisez "Réinitialiser" pour recommencer
+
+🌐 Lien GitHub Pages
+🔗 Lien vers l'application déployée :

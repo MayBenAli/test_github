@@ -204,3 +204,144 @@ function handleFocus(e) {
         highlightWord(activeWord.id);
     }
 }
+// Mettre à jour l'indicateur de direction
+function updateDirectionIndicator() {
+    const indicator = document.getElementById("current-direction");
+    indicator.textContent =
+        currentDirection === "horizontal" ? "HORIZONTAL" : "VERTICAL";
+}
+// Afficher les indices sous forme de boutons
+function displayClues() {
+    const horizontalClues = document.getElementById("horizontal-clues");
+    const verticalClues = document.getElementById("vertical-clues");
+
+    horizontalClues.innerHTML = "";
+    verticalClues.innerHTML = "";
+
+    crosswordData.words.forEach((word) => {
+        const clueButton = document.createElement("button");
+        clueButton.className = "clue-btn";
+        clueButton.textContent = `${word.id}. ${word.clue}`;
+        clueButton.dataset.wordId = word.id;
+
+        clueButton.addEventListener("click", () => {
+            // Focus sur la première lettre du mot sélectionné
+            activeWordId = word.id;
+            currentDirection = word.direction;
+            updateDirectionIndicator();
+            updateActiveClue();
+            highlightWord(word.id);
+
+            const firstInput = userInputs[`${word.row}-${word.col}`];
+            if (firstInput) {
+              firstInput.focus();
+            }
+        });
+
+        if (word.direction === "horizontal") {
+            horizontalClues.appendChild(clueButton);
+        } else {
+            verticalClues.appendChild(clueButton);
+        }
+    });
+}
+// Mettre à jour l'indice actif
+function updateActiveClue() {
+    const clues = document.querySelectorAll(".clue-btn");
+    clues.forEach((clue) => clue.classList.remove("active"));
+
+    if (activeWordId) {
+        const activeClue = document.querySelector(
+            `.clue-btn[data-word-id="${activeWordId}"]`
+        );
+        if (activeClue) {
+            activeClue.classList.add("active");
+        }
+    }
+}
+// Mettre en évidence les cases d'un mot
+function highlightWord(wordId) {
+    // Retirer la surbrillance précédente
+    highlightedCells.forEach((cell) => {
+        if (cell && cell.parentElement) {
+            cell.parentElement.classList.remove("highlight");
+        }
+    });
+    highlightedCells = [];
+
+    const word = crosswordData.words.find((w) => w.id === wordId);
+    if (!word) return;
+
+    const { direction, row, col, word: text } = word;
+
+    for (let i = 0; i < text.length; i++) {
+        const currentRow = direction === "horizontal" ? row : row + i;
+        const currentCol = direction === "horizontal" ? col + i : col;
+
+        if (currentRow < 9 && currentCol < 10) {
+            const input = userInputs[`${currentRow}-${currentCol}`];
+            if (input && input.parentElement) {
+                input.parentElement.classList.add("highlight");
+                highlightedCells.push(input);
+            }
+        }
+    }
+}
+// Vérifier les réponses
+function checkAnswers() {
+    let correctWords = 0;
+    const messageElement = document.getElementById("message");
+
+    crosswordData.words.forEach((word) => {
+        const { word: correctWord, direction, row, col } = word;
+        let userWord = "";
+        let allCellsValid = true;
+
+        for (let i = 0; i < correctWord.length; i++) {
+            const currentRow = direction === "horizontal" ? row : row + i;
+            const currentCol = direction === "horizontal" ? col + i : col;
+
+            if (currentRow < 9 && currentCol < 10) {
+                const input = userInputs[`${currentRow}-${currentCol}`];
+                if (input) {
+                    userWord += input.value || "";
+                    if (input.value.toUpperCase() !== correctWord[i]) {
+                        allCellsValid = false;
+                    }
+                }
+            }
+        }
+
+        if (userWord.toUpperCase() === correctWord) {
+            correctWords++;
+            // Marquer le mot comme correct (changer la couleur de fond des cases)
+            for (let i = 0; i < correctWord.length; i++) {
+                const currentRow = direction === "horizontal" ? row : row + i;
+                const currentCol = direction === "horizontal" ? col + i : col;
+
+                if (currentRow < 9 && currentCol < 10) {
+                    const input = userInputs[`${currentRow}-${currentCol}`];
+                    if (input) {
+                        input.parentElement.classList.add("correct");
+                    }
+                }
+            }
+        }
+    });
+
+    // Mettre à jour le score
+    score = correctWords;
+    document.getElementById("score").textContent = score;
+
+    // Afficher un message
+    if (score === totalWords) {
+        messageElement.textContent =
+            "Félicitations ! Vous avez résolu tous les mots !";
+        messageElement.className = "message success";
+    } else {
+        messageElement.textContent = `Vous avez trouvé ${score} mot(s) sur ${totalWords}. Continuez !`;
+        messageElement.className = "message success";
+    }
+
+    messageElement.style.display = "block";
+}
