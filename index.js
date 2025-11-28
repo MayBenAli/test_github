@@ -345,3 +345,50 @@ function checkAnswers() {
 
     messageElement.style.display = "block";
 }
+// Réinitialiser la grille
+function resetGrid() {
+    Object.values(userInputs).forEach((input) => {
+        input.value = "";
+        input.parentElement.classList.remove("correct", "highlight");
+    });
+
+    score = 0;
+    document.getElementById("score").textContent = score;
+
+    const messageElement = document.getElementById("message");
+    messageElement.style.display = "none";
+
+    // Réinitialiser la direction et le mot actif
+    currentDirection = "horizontal";
+    activeWordId = null;
+    updateDirectionIndicator();
+    updateActiveClue();
+    highlightedCells = [];
+}
+
+// Initialisation
+document.addEventListener("DOMContentLoaded", () => {
+    initializeGrid();
+    displayClues();
+    document.getElementById("total-words").textContent = totalWords;
+    updateDirectionIndicator();
+
+    // Événements des boutons
+    document
+        .getElementById("submit-btn")
+        .addEventListener("click", checkAnswers);
+    document
+        .getElementById("reset-btn")
+        .addEventListener("click", resetGrid);
+
+    // Changer de direction avec la touche Tab
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Tab") {
+            e.preventDefault();
+            currentDirection =
+              currentDirection === "horizontal" ? "vertical" : "horizontal";
+            updateDirectionIndicator();
+            updateActiveClue();
+        }
+    });
+});
