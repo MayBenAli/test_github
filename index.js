@@ -131,10 +131,17 @@ function handleInput(e) {
         }
 
         // Vérifier les limites de la grille
-        if (nextRow < 9 && nextCol < 10) {
-        const nextInput = userInputs[`${nextRow}-${nextCol}`];
+        while (nextRow < 9 && nextCol < 10) {
+            const nextInput = userInputs[`${nextRow}-${nextCol}`];
             if (nextInput) {
                 nextInput.focus();
+                break;
+            }
+            
+            if (currentDirection === "horizontal") {
+                nextCol++;
+            } else {
+                nextRow++;
             }
         }
     }
@@ -158,10 +165,17 @@ function handleKeyDown(e) {
         }
     
         // Vérifier les limites de la grille
-        if (prevRow >= 0 && prevCol >= 0) {
+        while (prevRow >= 0 && prevCol >= 0) {
             const prevInput = userInputs[`${prevRow}-${prevCol}`];
             if (prevInput) {
-                prevInput.focus(); //place le curseur dans un champ ou active l'element pour recevoir des interactions clavier.
+                prevInput.focus();
+                break;
+            }
+            
+            if (currentDirection === "horizontal") {
+                prevCol--;
+            } else {
+                prevRow--;
             }
         }
     } else if (e.key === "Tab") {
@@ -179,22 +193,37 @@ function handleFocus(e) {
     const row = parseInt(input.dataset.row);
     const col = parseInt(input.dataset.col);
 
-    // Trouver le mot actif basé sur la position
-    const activeWord = crosswordData.words.find((word) => {
-        if (word.direction === "horizontal") {
-            return (
-              word.row === row &&
-              col >= word.col &&
-              col < word.col + word.word.length
-            );
-        } else {
-            return (
-              word.col === col &&
-              row >= word.row &&
-              row < word.row + word.word.length
-            );
-          }
+    // Étape 1: Chercher d'abord les mots qui COMMENCENT sur cette case
+    let activeWord = crosswordData.words.find((word) => {
+        return word.row === row && word.col === col; // Début exact du mot
     });
+
+    // Étape 2: Si aucun mot ne commence ici, chercher les mots qui CONTIENNENT cette case
+    if (!activeWord) {
+        activeWord = crosswordData.words.find((word) => {
+            if (word.direction === "horizontal") {
+                return word.row === row && 
+                       col >= word.col && 
+                       col < word.col + word.word.length;
+            } else {
+                return word.col === col && 
+                       row >= word.row && 
+                       row < word.row + word.word.length;
+            }
+        });
+    }
+
+    // Étape 3: Si plusieurs mots commencent ici, priorité aux horizontaux
+    if (!activeWord) {
+        const wordsStartingHere = crosswordData.words.filter((word) => {
+            return word.row === row && word.col === col;
+        });
+        
+        if (wordsStartingHere.length > 0) {
+            // Priorité aux mots horizontaux
+            activeWord = wordsStartingHere.find(word => word.direction === "horizontal") || wordsStartingHere[0];
+        }
+    }
 
     if (activeWord) {
         activeWordId = activeWord.id;
@@ -202,6 +231,8 @@ function handleFocus(e) {
         updateDirectionIndicator();
         updateActiveClue();
         highlightWord(activeWord.id);
+        
+        console.log(`Selected word ${activeWord.id}: "${activeWord.word}" starting at (${activeWord.row},${activeWord.col})`);
     }
 }
 // Mettre à jour l'indicateur de direction
@@ -273,7 +304,7 @@ function highlightWord(wordId) {
     if (!word) return;
 
     const { direction, row, col, word: text } = word;
-
+    console.log(`Highlighting word ${wordId}: ${text} at (${row},${col}) direction: ${direction}`);
     for (let i = 0; i < text.length; i++) {
         const currentRow = direction === "horizontal" ? row : row + i;
         const currentCol = direction === "horizontal" ? col + i : col;

@@ -101,6 +101,15 @@ Accessibilité : Navigation au clavier complète
 
 Performance : Gestion efficace des événements
 
+Problèmes Spécifiques Résolus
+Conflit de sélection : Clic sur le mot "PARADIS" sélectionnait le mot "ALPINISME"
+
+Navigation erratique : Les flèches sautaient des cases vides
+
+Priorité de sélection : Incapacité à choisir entre mots horizontaux/verticaux sur une même case
+
+Feedback utilisateur : Difficulté à identifier quel mot était actuellement sélectionné
+
 💡 Solutions Apportées
 Solutions Techniques
 Système de coordonnées :
@@ -143,7 +152,14 @@ MDN Web Docs : Documentation complète des APIs web
 
 Stack Overflow : Solutions aux problèmes spécifiques
 
-GitHub Communities : Bonnes pratiques de développement
+Navigation améliorée :
+
+Recherche intelligente de la prochaine case disponible
+
+Gestion robuste des limites de la grille
+
+Méthodologie de Résolution
+Analyse des cas limites : Gestion des situations ambiguës
 
 CSS-Tricks : Techniques avancées de styling
 
