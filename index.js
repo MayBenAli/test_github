@@ -188,52 +188,136 @@ function handleKeyDown(e) {
     }
 }
 // Gérer le focus sur une cellule
+// Gérer le focus sur une cellule
 function handleFocus(e) {
     const input = e.target;
     const row = parseInt(input.dataset.row);
     const col = parseInt(input.dataset.col);
 
-    // Étape 1: Chercher d'abord les mots qui COMMENCENT sur cette case
-    let activeWord = crosswordData.words.find((word) => {
-        return word.row === row && word.col === col; // Début exact du mot
+    // Étape 1: Chercher tous les mots qui passent par cette case
+    const wordsAtThisCell = crosswordData.words.filter((word) => {
+        if (word.direction === "horizontal") {
+            return word.row === row && 
+                   col >= word.col && 
+                   col < word.col + word.word.length;
+        } else {
+            return word.col === col && 
+                   row >= word.row && 
+                   row < word.row + word.word.length;
+        }
     });
 
-    // Étape 2: Si aucun mot ne commence ici, chercher les mots qui CONTIENNENT cette case
-    if (!activeWord) {
-        activeWord = crosswordData.words.find((word) => {
-            if (word.direction === "horizontal") {
-                return word.row === row && 
-                       col >= word.col && 
-                       col < word.col + word.word.length;
-            } else {
-                return word.col === col && 
-                       row >= word.row && 
-                       row < word.row + word.word.length;
+    // Si un seul mot passe par cette case, le sélectionner
+    if (wordsAtThisCell.length === 1) {
+        selectWord(wordsAtThisCell[0]);
+        return;
+    }
+
+    // Si plusieurs mots passent par cette case (case commune)
+    if (wordsAtThisCell.length > 1) {
+        let selectedWord = null;
+
+        // Vérifier l'état des cases adjacentes pour chaque mot
+        for (const word of wordsAtThisCell) {
+            const isGoodCandidate = checkAdjacentCells(word, row, col);
+            if (isGoodCandidate) {
+                selectedWord = word;
+                break;
             }
-        });
-    }
-
-    // Étape 3: Si plusieurs mots commencent ici, priorité aux horizontaux
-    if (!activeWord) {
-        const wordsStartingHere = crosswordData.words.filter((word) => {
-            return word.row === row && word.col === col;
-        });
-        
-        if (wordsStartingHere.length > 0) {
-            // Priorité aux mots horizontaux
-            activeWord = wordsStartingHere.find(word => word.direction === "horizontal") || wordsStartingHere[0];
         }
+
+        // Si aucun mot ne répond aux critères, prendre le premier
+        if (!selectedWord && wordsAtThisCell.length > 0) {
+            selectedWord = wordsAtThisCell[0];
+        }
+
+        if (selectedWord) {
+            selectWord(selectedWord);
+        }
+        return;
     }
 
-    if (activeWord) {
-        activeWordId = activeWord.id;
-        currentDirection = activeWord.direction;
-        updateDirectionIndicator();
-        updateActiveClue();
-        highlightWord(activeWord.id);
-        
-        console.log(`Selected word ${activeWord.id}: "${activeWord.word}" starting at (${activeWord.row},${activeWord.col})`);
+    // Si aucun mot ne passe par cette case, garder la sélection actuelle
+    console.log("Aucun mot trouvé pour cette case");
+}
+
+// Vérifie si un mot est bien placé pour être sélectionné
+// Regarde les cases avant et après pour décider
+function checkAdjacentCells(word, currentRow, currentCol) {
+    const { direction, row, col, word: text } = word;
+    
+    // Trouver où on se trouve dans le mot
+    let positionInWord;
+    if (direction === "horizontal") {
+        positionInWord = currentCol - col; // Position horizontale
+    } else {
+        positionInWord = currentRow - row; // Position verticale
     }
+
+    // Vérifier la case d'avant
+    const hasPreviousCell = positionInWord > 0; // Y a-t-il une case avant ?
+    let previousCellFilled = false;
+    
+    if (hasPreviousCell) {
+        // Coordonnées de la case d'avant
+        const prevRow = direction === "horizontal" ? row : row + (positionInWord - 1);
+        const prevCol = direction === "horizontal" ? col + (positionInWord - 1) : col;
+        const prevInput = userInputs[`${prevRow}-${prevCol}`];
+        
+        // La case d'avant est-elle remplie ?
+        previousCellFilled = prevInput && prevInput.value !== "";
+    }
+
+    // Vérifier la case d'après
+    const hasNextCell = positionInWord < text.length - 1; // Y a-t-il une case après ?
+    let nextCellEmpty = false;
+    
+    if (hasNextCell) {
+        // Coordonnées de la case d'après
+        const nextRow = direction === "horizontal" ? row : row + (positionInWord + 1);
+        const nextCol = direction === "horizontal" ? col + (positionInWord + 1) : col;
+        const nextInput = userInputs[`${nextRow}-${nextCol}`];
+        
+        // La case d'après est-elle vide ?
+        nextCellEmpty = nextInput && nextInput.value === "";
+    }
+
+    // Vérifier si c'est la dernière case du mot
+    const isLastCell = positionInWord === text.length - 1;
+    
+    console.log(`Mot ${word.id}: avant=${previousCellFilled}, après=${nextCellEmpty}, position=${positionInWord}, dernière=${isLastCell}`);
+
+    // Décider quel mot choisir :
+
+    // 1. Si c'est la fin du mot → changer de mot
+    if (isLastCell) {
+        return false; // Ne pas prendre ce mot
+    }
+    
+    // 2. Si on est au milieu du mot :
+    //    - case d'avant remplie ET case d'après vide → bon choix
+    else if (hasPreviousCell && hasNextCell) {
+        return previousCellFilled && nextCellEmpty;
+    }
+    
+    // 3. Si c'est le début du mot :
+    //    - case d'après vide → bon choix
+    else if (!hasPreviousCell && hasNextCell) {
+        return nextCellEmpty;
+    }
+
+    // Sinon, ne pas prendre ce mot
+    return false;
+}
+// Fonction helper pour sélectionner un mot
+function selectWord(word) {
+    activeWordId = word.id;
+    currentDirection = word.direction;
+    updateDirectionIndicator();
+    updateActiveClue();
+    highlightWord(word.id);
+    
+    console.log(`Selected word ${word.id}: "${word.word}" direction: ${word.direction}`);
 }
 // Mettre à jour l'indicateur de direction
 function updateDirectionIndicator() {
